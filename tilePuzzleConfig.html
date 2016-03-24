@@ -1,0 +1,14 @@
+<div id="puzzleComplexityDiv">
+    <span>Rows and Columns: </span>
+    <select id="puzzleComplexitySelect">
+        <option>2</option>
+        <option selected>3</option>
+        <option>4</option>
+        <option>5</option>
+    </select>
+</div>
+<div id="puzzleImageSelection">
+    {{#each images}}
+        <img src="{{this.src}}" alt="{{@index}}"/>
+    {{/each}}
+</div>

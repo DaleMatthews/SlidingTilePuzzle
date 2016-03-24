@@ -1,0 +1,20 @@
+#tilePuzzleCanvas {
+    background: white;
+}
+
+#puzzleComplexityDiv {
+    margin: 4px;
+}
+
+#puzzleImageSelection img {
+    margin: 4px;
+    border: 2px solid black;
+    height: 40%;
+    width: 40%;
+    user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
