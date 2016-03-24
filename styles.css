@@ -1,5 +1,6 @@
 #tilePuzzleCanvas {
     background: white;
+    margin: 100px;
 }
 
 #puzzleComplexityDiv {
