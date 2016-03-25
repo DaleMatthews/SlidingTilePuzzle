@@ -1,18 +1,120 @@
 "use strict";
 
-MazeController = function () {
+var HORIZONTAL = 0;
+var VERTICAL = 1;
+var WALL = 2;
+var NO_WALL = 3;
+
+function Maze(mazeSize) {
+    var lineGraphic = new createjs.Graphics().beginStroke('black').beginFill('#b3b3b3').drawRect(0, 0, 10, 250);
+    var lineShape = new createjs.Shape(lineGraphic);
+    lineShape.x = 20;
+    lineShape.y = 10;
+    var lineShape2 = new createjs.Shape(lineGraphic);
+    lineShape2.x = 70;
+    lineShape2.y = 10;
+    this.addChild(lineShape, lineShape2);
+
+    this.vLines = [];
+    this.hLines = [];
+
+    // Add walls around the sides
+    this.vLines.push({
+        x: 0,
+        y1: 0,
+        y2: mazeSize
+    });
+    this.vLines.push({
+        x: mazeSize,
+        y1: 0,
+        y2: mazeSize
+    });
+    this.hLines.push({
+        y: 0,
+        x1: 0,
+        x2: mazeSize
+    });
+    this.hLines.push({
+        y: mazeSize,
+        x1: 0,
+        x2: mazeSize
+    });
+
+    this.addMazeLine(0, 0, mazeSize, mazeSize);
+}
+
+Maze.prototype = new createjs.Container();
+
+Maze.prototype.chooseOrientation = function(width, height) {
+    if (width < height)
+        return HORIZONTAL;
+    else if (height < width)
+        return VERTICAL;
+    else
+        return Math.floor(Math.random()*2) === 0 ? HORIZONTAL : VERTICAL;
+}
+
+// Adds a wall to the maze within the square (xStart, yStart) -> (xStop, yStop)
+Maze.prototype.addMazeLine = function(xStart, yStart, xStop, yStop) {
+    var width = xStop - xStart;
+    var height = yStop - yStart;
+    if (this.chooseOrientation(width, height) === HORIZONTAL) {
+        if (width === 1) {
+            return;
+        }
+        var yWall = Math.floor(Math.random() * (height-1)) + yStart+1;
+        var xSpace = Math.floor(Math.random() * width) + xStart;
+        if (xSpace !== xStart) { // don't want a wall of length 0
+            this.hLines.push({
+                y: yWall,
+                x1: xStart,
+                x2: xSpace
+            });
+        }
+        if (xStop !== xSpace+1) { // don't want a wall of length 0
+            this.hLines.push({
+                y: yWall,
+                x1: xSpace+1,
+                x2: xStop
+            });
+        }
+        this.addMazeLine(xStart, yStart, xStop, yWall);
+        this.addMazeLine(xStart, yWall, xStop, yStop);
+    } else { // VERTICAL
+        if (height === 1) {
+            return;
+        }
+        var xWall = Math.floor(Math.random() * (width-1)) + xStart+1;
+        var ySpace = Math.floor(Math.random() * height) + yStart;
+        if (ySpace !== yStart) { // don't want a wall of length 0
+            this.vLines.push({
+                x: xWall,
+                y1: yStart,
+                y2: ySpace
+            });
+        }
+        if (yStop !== ySpace+1) { // don't want a wall of length 0
+            this.vLines.push({
+                x: xWall,
+                y1: ySpace+1,
+                y2: yStop
+            });
+        }
+        this.addMazeLine(xStart, yStart, xWall, yStop);
+        this.addMazeLine(xWall, yStart, xStop, yStop);
+    }
+}
+
+function MazeController() {
     this.characterSheet = new Image();
-    this.characterSheet.src = require.toUrl('./../images/maze-runner.png');
+    this.characterSheet.src = './images/maze-runner.png';
     this.dimensions = {x: 300, y: 300};
 }
 
-MazeController.prototype.render = function() {
-    this.element.innerHTML = Template.render();
-    setTimeout(this.onLoad.bind(this), 100); // :(
-},
+var mazeController = new MazeController();
 
 MazeController.prototype.onLoad = function() {
-    this.stage = new createjs.Stage(this.element.firstChild);
+    this.stage = new createjs.Stage('mazeCanvas');
 
     // create spritesheet and assign the associated data.
     var spriteSheet = new createjs.SpriteSheet({
@@ -56,16 +158,7 @@ MazeController.prototype.onLoad = function() {
     this.hero.shadow = new createjs.Shadow('#454', -2, -4, 2);
     this.stage.addChild(this.hero);
 
-    var lineGraphic = new createjs.Graphics().beginStroke('black').beginFill('#b3b3b3').drawRect(0, 0, 5, 250);
-    var lineShape = new createjs.Shape(lineGraphic);
-    lineShape.x = 20;
-    lineShape.y = 10;
-    var lineShape2 = new createjs.Shape(lineGraphic);
-    lineShape2.x = 70;
-    lineShape2.y = 10;
-
-    this.maze = new createjs.Container();
-    this.maze.addChild(lineShape, lineShape2);
+    this.maze = new Maze(5);
     this.stage.addChild(this.maze);
 
     createjs.Ticker.setFPS(20);
