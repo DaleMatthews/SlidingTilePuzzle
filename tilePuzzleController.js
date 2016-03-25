@@ -1,5 +1,4 @@
 "use strict";
-//'click img': 'onPuzzleSelect'
 
 var options = {};
 options.selection = options.selection || 0;
